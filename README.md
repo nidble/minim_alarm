@@ -113,11 +113,11 @@ python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_P
 
 ## Disclaimer
 
-This project has no relation with the Minim company.
+This project has no relation with the Inim company.
 
-This integration is using python module PyMinim which is an unofficial module for achieving interoperability with Minim APIs.
+This integration is using python module pyinim which is an unofficial module for achieving interoperability with Inim APIs.
 
-Author is in no way affiliated with Minim.
+Author is in no way affiliated with Inim.
 
 All the api requests used within the pyinim library are available and published on the internet (examples linked above) and the pyinim module is purely just a wrapper around those https requests.
 
