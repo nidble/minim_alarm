@@ -1,4 +1,4 @@
-# 🍄 Inim Alarm
+# 🍄 Minim Alarm
 
 [![hacs][hacs-badge]][hacs-url]
 [![release][release-badge]][release-url]
@@ -12,15 +12,15 @@
   >
 </a>
 
-## What is Inim Alarm ?
+## What is Minim Alarm ?
 
-Inim Alarm is a custom component to connect your Inim Alarm with [Home Assistant][home-assistant].
+Minim Alarm is a custom component to connect your Minim Alarm with [Home Assistant][home-assistant].
 
-Inim Alarm target is to provide you with all the sensors and the Alarm control panel of [Home Assistant][home-assistant] needed to manager your system.
+Minim Alarm target is to provide you with all the sensors and the Alarm control panel of [Home Assistant][home-assistant] needed to manager your system.
 
 ### Features
 
-- List all the Binary Sensors expsosed by Inim
+- List all the Binary Sensors expsosed by Minim
 - Create your Alarm control panel using your custom scenarios
 - Manage the configuration via GUI
 
@@ -28,7 +28,7 @@ Inim Alarm target is to provide you with all the sensors and the Alarm control p
 
 ### HACS
 
-Inim Alarm is installable via [HACS][hacs] (Home Assistant Community Store) adding the name of the repo to the custom repo.
+Minim Alarm is installable via [HACS][hacs] (Home Assistant Community Store) adding the name of the repo to the custom repo.
 If you want to try and add a custom repository to HACS do the following:
 
 ![three dots](images/image01.png)
@@ -36,7 +36,7 @@ If you want to try and add a custom repository to HACS do the following:
 
 1. Click on the 3 dots in the top right corner.
 1. Select "Custom repositories"
-1. Add the URL to the repository ( https://github.com/nidble/inim_alarm/ ).
+1. Add the URL to the repository ( https://github.com/nidble/minim_alarm/ ).
 1. Select the correct type (**Integration**).
 1. Click the "ADD" button.
 
@@ -45,7 +45,7 @@ If you want to try and add a custom repository to HACS do the following:
 
 ### Manual
 
-1. **Download the custom component files:** Download the necessary files for the custom component. In this case the latest release of this component: https://github.com/nidble/inim_alarm/releases/latest
+1. **Download the custom component files:** Download the necessary files for the custom component. In this case the latest release of this component: https://github.com/nidble/minim_alarm/releases/latest
 
 
 2. **Place the files in your Home Assistant configuration directory:**  Move the downloaded folder into your Home Assistant's `custom_components` directory.
@@ -54,7 +54,7 @@ If you want to try and add a custom repository to HACS do the following:
       ```
       <config directory>
       └── custom_components
-          └── inim_alarm
+          └── minim_alarm
               └──  __init__.py
                   └── sensor.py
                   └── ... other files
@@ -82,7 +82,7 @@ To gather the DeviceID follow the steps [here](#discover-your-device-id)
 
 ## Discover your device ID
 
-To discover your device ID you can use the method InimCloud.get_devices_list from pyInim library.
+To discover your device ID you can use the method MinimCloud.get_devices_list from pyMinim library.
 To do so you can use the script in the tool path following the example:
 
 #### Install the requirements:
@@ -113,11 +113,11 @@ python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_P
 
 ## Disclaimer
 
-This project has no relation with the Inim company.
+This project has no relation with the Minim company.
 
-This integration is using python module PyInim which is an unofficial module for achieving interoperability with Inim APIs.
+This integration is using python module PyMinim which is an unofficial module for achieving interoperability with Minim APIs.
 
-Author is in no way affiliated with Inim.
+Author is in no way affiliated with Minim.
 
 All the api requests used within the pyinim library are available and published on the internet (examples linked above) and the pyinim module is purely just a wrapper around those https requests.
 
@@ -130,8 +130,8 @@ All product names, trademarks and registered trademarks in this repository, are 
 
 [hacs-url]: https://github.com/hacs/integration
 [hacs-badge]: https://img.shields.io/badge/hacs-default-orange.svg?style=flat-square
-[release-badge]: https://img.shields.io/github/v/release/nidble/inim_alarm?style=flat-square
-[downloads-badge]: https://img.shields.io/github/downloads/nidble/inim_alarm/total?style=flat-square
+[release-badge]: https://img.shields.io/github/v/release/nidble/minim_alarm?style=flat-square
+[downloads-badge]: https://img.shields.io/github/downloads/nidble/minim_alarm/total?style=flat-square
 
 
 <!-- References -->
@@ -142,4 +142,4 @@ All product names, trademarks and registered trademarks in this repository, are 
 [ui-lovelace-minimalist]: https://ui-lovelace-minimalist.github.io/UI/
 [button-card]: https://github.com/custom-cards/button-card
 [7ahang]: https://www.behance.net/gallery/88433905/Redesign-Smart-Home
-[release-url]: https://github.com/nidble/inim_alarm/releases
+[release-url]: https://github.com/nidble/minim_alarm/releases
