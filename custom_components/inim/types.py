@@ -2,7 +2,7 @@
 
 from pyinim.cloud.types.devices import Data, Devices, Zones
 
-InimResult = Devices
+MinimResult = Devices
 
 Device = Data
 

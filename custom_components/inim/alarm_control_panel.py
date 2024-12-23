@@ -1,13 +1,13 @@
-"""Support for INIM Alarm Control Panels."""
+"""Support for MINIM Alarm Control Panels."""
 
 from collections.abc import Mapping
 from functools import cached_property
 import logging
 
 # from aiohttp import ClientError
-from pyinim.inim_cloud import InimCloud
+from pyinim.inim_cloud import MinimCloud
 
-# from config.inim_alarm.custom_components.inim.types import InimResult #TODO fix broken import
+# from config.minim_alarm.custom_components.minim.types import MinimResult #TODO fix broken import
 from homeassistant.components.alarm_control_panel import (
     AlarmControlPanelEntity,
     AlarmControlPanelEntityFeature,
@@ -23,11 +23,15 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
 
-from .const import CONF_DEVICE_ID, CONF_PANELS, CONF_SCENARIOS, DOMAIN
+from .const import (
+    CONF_DEVICE_ID,
+    CONF_PANELS,
+    CONF_SCENARIOS,
+    CONST_MANUFACTURER,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
-
-CONST_MANUFACTURER = "Inim"
 
 
 async def async_setup_entry(
@@ -55,12 +59,12 @@ async def async_setup_entry(
     # coordinator.async_refresh() instead
     #
     # await coordinator.async_config_entry_first_refresh()
-    # devices: InimResult = coordinator.data
+    # devices: MinimResult = coordinator.data
     _LOGGER.warning(
-        "INIM alarm panel was created/updated for the following panels: %s", panels
+        "MMINIM alarm panel was created/updated for the following panels: %s", panels
     )
     alarm_control_panels = [
-        InimAlarmControlPanelEntity(
+        MinimAlarmControlPanelEntity(
             coordinator,
             inim_cloud_api,
             device_id,
@@ -74,8 +78,8 @@ async def async_setup_entry(
     async_add_entities(alarm_control_panels, update_before_add=True)
 
 
-class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
-    """Representation of an Inim Alarm Control Panel."""
+class MinimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
+    """Representation of an Minim Alarm Control Panel."""
 
     _attr_supported_features = (
         AlarmControlPanelEntityFeature.ARM_NIGHT
@@ -89,8 +93,8 @@ class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,  # TODO: provide proper Generic type ie: # coordinator: DataUpdateCoordinator[InimResult],
-        inim: InimCloud,
+        coordinator: DataUpdateCoordinator,  # TODO: provide proper Generic type ie: # coordinator: DataUpdateCoordinator[MinimResult],
+        minim: MinimCloud,
         device_id: str,
         panel,  # TODO add type
         version: str,
@@ -100,7 +104,7 @@ class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
         super().__init__(coordinator)  # , context=zone.ZoneId)
 
         panel_name = panel["panel_name"]
-        self._client = inim
+        self._client = minim
         self._device_id = device_id
         self._scenarios = panel[CONF_SCENARIOS]
         self._attr_unique_id = panel["unique_id"]
@@ -128,7 +132,7 @@ class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
 
             for scenario in scenarios:
                 _LOGGER.info(
-                    "INIM alarm panel %s state is going to be updated with the following scenario %s",
+                    "MINIM alarm panel %s state is going to be updated with the following scenario %s",
                     self._attr_unique_id,
                     scenario,
                 )
@@ -151,7 +155,7 @@ class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
                 #     return STATE_ALARM_ARMED_CUSTOM_BYPASS
 
         except Exception as e:
-            _LOGGER.exception("Error retrieving data from INIM services: %s", e)
+            _LOGGER.exception("Error retrieving data from MINIM services: %s", e)
 
     async def async_alarm_disarm(self, code: str | None = None) -> None:
         """Send disarm command."""
@@ -182,7 +186,7 @@ class InimAlarmControlPanelEntity(CoordinatorEntity, AlarmControlPanelEntity):
             self._device_id, self._scenarios[state]
         )
         _LOGGER.info(
-            "INIM alarm panel %s is going to be updated with %s/%s",
+            "MINIM alarm panel %s is going to be updated with %s/%s",
             self._attr_unique_id,
             state,
             self._scenarios[state],

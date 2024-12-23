@@ -7,12 +7,12 @@
     "step": {
       "user": {
         "data": {
-          "username": "Inim Username",
-          "password": "Inim Password",
-          "device_id": "Inim DeviceId",
-          "client_id": "Inim ClientId"
+          "username": "Minim Username",
+          "password": "Minim Password",
+          "device_id": "Minim DeviceId",
+          "client_id": "Minim ClientId"
         },
-        "description": "Enter your Inim credentials.",
+        "description": "Enter your Minim credentials.",
         "title": "Authentication"
       },
       "panel": {

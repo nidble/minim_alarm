@@ -11,8 +11,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.util import slugify
 
-from .const import CONF_DEVICE_ID, DOMAIN
-from .types import Device, InimResult, Zone
+from .const import CONF_DEVICE_ID, CONST_MANUFACTURER, DOMAIN
+from .types import Device, MinimResult, Zone
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,19 +32,19 @@ async def async_setup_entry(
     res: Device = coordinator.data.Data[device_id]
 
     binary_sensors = [
-        InimBinarySensorEntity(coordinator, zone, device_id) for zone in res.Zones
+        MinimBinarySensorEntity(coordinator, zone, device_id) for zone in res.Zones
     ]
 
     # Create the binary sensors.
     async_add_entities(binary_sensors)
 
 
-class InimBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
+class MinimBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
     """Represents a Presense Sensor for every Zone."""
 
     def __init__(  # noqa: D107
         self,
-        coordinator: DataUpdateCoordinator[InimResult],
+        coordinator: DataUpdateCoordinator[MinimResult],
         zone: Zone,
         device_id: str,
     ):
@@ -56,7 +56,7 @@ class InimBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
         self._attr_extra_state_attributes = {}
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, zone.ZoneId)},
-            manufacturer="Inim",
+            manufacturer=CONST_MANUFACTURER,
             model=zone.Type,
             name=zone.Name,
         )
@@ -81,7 +81,7 @@ class InimBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
     def get_unique_id(self) -> str:
         """Retrieve the sensor unique id."""
         slug = slugify(self._zone.Name)
-        return f"binary_sensor.inim_{slug}_{self._zone.ZoneId}"
+        return f"binary_sensor.minim_{slug}_{self._zone.ZoneId}"
 
     @property
     def name(self) -> str:

@@ -1,16 +1,16 @@
 {
-  "domain": "inim",
-  "name": "Inim Alarm",
+  "domain": "minim",
+  "name": "Minim Alarm",
   "codeowners": [
     "@nidble"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/nidble/inim_alarm/",
+  "documentation": "https://github.com/nidble/minim_alarm/",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/nidble/inim_alarm/issues",
+  "issue_tracker": "https://github.com/nidble/minim_alarm/issues",
   "requirements": [
-    "pyinim==0.0.18"
+    "pyinim==0.0.19"
   ],
-  "version": "0.2.5"
+  "version": "0.3.0"
 }

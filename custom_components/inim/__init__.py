@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 import logging
 
-from pyinim.inim_cloud import InimCloud
+from pyinim.inim_cloud import InimCloud as MinimCloud
 
 from homeassistant import core
 from homeassistant.config_entries import ConfigEntry
@@ -14,12 +14,12 @@ from homeassistant.const import (
     CONF_USERNAME,
     Platform,
 )
-from homeassistant.exceptions import ConfigEntryNotReady, ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import CONF_CLIENT_ID, CONF_DEVICE_ID, DOMAIN
-from .types import InimResult
+from .types import MinimResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,17 +31,17 @@ PLATFORMS: list[Platform] = [
 
 @dataclass
 class RuntimeData:
-    """Class to hold inim data."""
+    """Class to hold minim data."""
 
     coordinator: DataUpdateCoordinator
-    inim_cloud_api: InimCloud
+    inim_cloud_api: MinimCloud
     cancel_update_listener: Callable
 
 
 async def async_setup_entry(
     hass: core.HomeAssistant, config_entry: ConfigEntry
 ) -> bool:
-    """Set up Inim Integration from a config entry."""
+    """Set up Minim Integration from a config entry."""
 
     hass.data.setdefault(DOMAIN, {})
 
@@ -51,21 +51,21 @@ async def async_setup_entry(
     device_id = config_entry.data[CONF_DEVICE_ID]
     scan_interval = timedelta(seconds=config_entry.data[CONF_SCAN_INTERVAL])
 
-    inim_cloud_api = InimCloud(
+    inim_cloud_api = MinimCloud(
         async_get_clientsession(hass),
-        name="Inim",
+        name="Minim",
         username=username,
         password=password,
         client_id=client_id,
     )
 
-    async def async_fetch_inim() -> InimResult | None:
+    async def async_fetch_minim() -> MinimResult | None:
         try:
             await inim_cloud_api.get_request_poll(device_id)
             _, _, res = await inim_cloud_api.get_devices_extended(device_id)
             return res
         except Exception as ex:
-            # raise ConfigEntryAuthFailed("Credentials expired for Inim Cloud") from ex
+            # raise ConfigEntryAuthFailed("Credentials expired for Minim Cloud") from ex
             config_entry.async_start_reauth(hass)
 
     coordinator = DataUpdateCoordinator(
@@ -73,7 +73,7 @@ async def async_setup_entry(
         _LOGGER,
         # Name of the data. For logging purposes.
         name=DOMAIN,
-        update_method=async_fetch_inim,
+        update_method=async_fetch_minim,
         # Polling interval. Will only be polled if there are subscribers.
         update_interval=scan_interval,
     )

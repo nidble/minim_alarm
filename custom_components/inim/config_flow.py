@@ -1,8 +1,11 @@
+"""Support for MINIM Config Flow."""
+
+from copy import deepcopy
 from http.client import HTTPException
 import logging
 from typing import Any, Optional
 
-from pyinim.inim_cloud import InimCloud
+from pyinim.inim_cloud import MinimCloud
 import voluptuous as vol
 
 from homeassistant import config_entries, core
@@ -20,11 +23,16 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.entity_registry import (
+    async_entries_for_config_entry,
+    async_get,
+)
 
 from .const import (
     CONF_PANEL_NAME,
     CONF_PANELS,
     CONST_ALARM_CONTROL_PANEL_NAME,
+    CONST_MANUFACTURER,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
@@ -52,7 +60,7 @@ DEFAULT_SCENARIOS_SCHEMA = {
 PANEL_SCHEMA = vol.Schema(
     {
         vol.Required(
-            CONF_PANEL_NAME, description={"suggested_value": "Inim Alarm Panel"}
+            CONF_PANEL_NAME, description={"suggested_value": "Minim Alarm Panel"}
         ): cv.string,
         vol.Optional(
             STATE_ALARM_ARMED_AWAY, description={"suggested_value": 0}
@@ -92,7 +100,7 @@ def gen_unique_panel_id(s: str) -> str:
 
 
 async def validate_panel(name: str) -> None:
-    """Validate a Inim Panel."""
+    """Validate a Minim Panel."""
 
     # TODO: add some validation stuff
     return gen_unique_panel_id(name)
@@ -109,25 +117,25 @@ async def validate_auth(
     Raises a ValueError if the auth token is invalid.
     """
     session = async_get_clientsession(hass)
-    inim = InimCloud(
+    minim = MinimCloud(
         session,
-        name="Inim",
+        name=CONST_MANUFACTURER,
         username=username,
         password=password,
         client_id=client_id,
     )
 
     try:
-        await inim.token()
+        await minim.token()
     except Exception as exc:
         # except BadRequest as exc:
         raise ValueError("Something bad happened while validating Auth form") from exc
 
-    return {"title": f"Inim Integration for - {username}"}
+    return {"title": f"Minim Integration for - {username}"}
 
 
-class GithubCustomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Github Custom config flow."""
+class MinimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Minim config flow."""
 
     VERSION = 1
     data: Optional[dict[str, Any]]
@@ -224,19 +232,8 @@ class GithubCustomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return await self.async_step_panel()
 
                 # User is done adding panels, create the config entry.
-                return self.async_create_entry(title="Inim Alarm", data=self.data)
+                return self.async_create_entry(title="Minim Alarm", data=self.data)
 
         return self.async_show_form(
             step_id="panel", data_schema=PANEL_SCHEMA, errors=errors
         )
-
-    # TODO add OptionsFlowHandler 1/2
-    # @staticmethod
-    # @callback
-    # def async_get_options_flow(config_entry):
-    #     """Get the options flow for this handler."""
-    #     return OptionsFlowHandler(config_entry)
-
-
-# TODO add OptionsFlowHandler 2/2
-# class OptionsFlowHandler(config_entries.OptionsFlow):
