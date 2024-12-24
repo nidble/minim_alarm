@@ -33,7 +33,6 @@ If you want to try and add a custom repository to HACS do the following:
 
 ![three dots](images/image01.png)
 
-
 1. Click on the 3 dots in the top right corner.
 1. Select "Custom repositories"
 1. Add the URL to the repository ( https://github.com/nidble/minim_alarm/ ).
@@ -42,41 +41,38 @@ If you want to try and add a custom repository to HACS do the following:
 
 ![three dots](images/image02.png)
 
-
 ### Manual
 
 1. **Download the custom component files:** Download the necessary files for the custom component. In this case the latest release of this component: https://github.com/nidble/minim_alarm/releases/latest
 
-
-2. **Place the files in your Home Assistant configuration directory:**  Move the downloaded folder into your Home Assistant's `custom_components` directory.
-    * If it doesn't exist, create it within your main Home Assistant configuration directory.
-    * The final file structure should look something like this:
-      ```
-      <config directory>
-      └── custom_components
-          └── minim_alarm
-              └──  __init__.py
-                  └── sensor.py
-                  └── ... other files
-      ```
+2. **Place the files in your Home Assistant configuration directory:** Move the downloaded folder into your Home Assistant's `custom_components` directory.
+   - If it doesn't exist, create it within your main Home Assistant configuration directory.
+   - The final file structure should look something like this:
+     ```
+     <config directory>
+     └── custom_components
+         └── minim_alarm
+             └──  __init__.py
+                 └── sensor.py
+                 └── ... other files
+     ```
 3. **Restart Home Assistant:** Restart Home Assistant to load the new custom component.
-
-
 
 ### Configuration
 
 1. Go to the integration dashboard and search inim (or click here): <a href="https://my.home-assistant.io/redirect/brand/?brand=inim" target="_blank">![add integration](images/add_integration.png)</a>
-1. Click on add integration
-2. Fill the popup with all the informations.
+
+2. Click on add integration
+3. Fill the popup with all the informations.
 
 ![authentication](images/authentication.png)
 
-3. Add the scenary to the panels
+4. Add the `panel` to the panels
 
 ![authentication](images/panel.png)
 
 Note:
-The client ID can be anything from "homeassistant" to an UUID, just do not include special charactoers or spaces.
+The client ID can be anything from "homeassistant" to an UUID, just do not include special characters or spaces.
 
 To gather the DeviceID follow the steps [here](#discover-your-device-id)
 
@@ -86,6 +82,7 @@ To discover your device ID you can use the method MinimCloud.get_devices_list fr
 To do so you can use the script in the tool path following the example:
 
 #### Install the requirements:
+
 ```bash
 git clone https://github.com/nidble/pyinim
 cd pyinim
@@ -95,21 +92,22 @@ pip install -r tools/requirements.txt
 ```
 
 #### List the devices id:
+
 ```bash
 python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_PASSWORD> --list deviceid
 ```
 
 #### List the scenarios id:
+
 ```bash
 python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_PASSWORD> --list scenarios
 ```
 
 #### List the areas id:
+
 ```bash
 python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_PASSWORD> --list areas
 ```
-
-
 
 ## Disclaimer
 
@@ -125,14 +123,12 @@ Author does not guarantee functionality of this integration and is not responsib
 
 All product names, trademarks and registered trademarks in this repository, are property of their respective owners.
 
-
 <!-- Badges -->
 
 [hacs-url]: https://github.com/hacs/integration
 [hacs-badge]: https://img.shields.io/badge/hacs-default-orange.svg?style=flat-square
 [release-badge]: https://img.shields.io/github/v/release/nidble/minim_alarm?style=flat-square
 [downloads-badge]: https://img.shields.io/github/downloads/nidble/minim_alarm/total?style=flat-square
-
 
 <!-- References -->
 
