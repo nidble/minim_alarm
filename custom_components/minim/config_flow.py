@@ -5,7 +5,7 @@ from http.client import HTTPException
 import logging
 from typing import Any, Optional
 
-from pyinim.inim_cloud import MinimCloud
+from pyinim.inim_cloud import InimCloud as MinimCloud
 import voluptuous as vol
 
 from homeassistant import config_entries, core

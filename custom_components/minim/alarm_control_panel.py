@@ -5,7 +5,7 @@ from functools import cached_property
 import logging
 
 # from aiohttp import ClientError
-from pyinim.inim_cloud import MinimCloud
+from pyinim.inim_cloud import InimCloud as MinimCloud
 
 # from config.minim_alarm.custom_components.minim.types import MinimResult #TODO fix broken import
 from homeassistant.components.alarm_control_panel import (
