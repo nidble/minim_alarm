@@ -1,0 +1,1 @@
+"""Tests for the Minim Alarm component."""

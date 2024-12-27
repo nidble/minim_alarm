@@ -109,6 +109,15 @@ python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_P
 python tools/inim_cli.py --username <YOUR_INIM_USERNAME> --password <YOUR_INIM_PASSWORD> --list areas
 ```
 
+## Test
+
+```sh
+pip install virtualenv  # (if you don't already have virtualenv installed, see https://virtualenv.pypa.io/en/latest/installation.html)
+virtualenv venv # to create your new environment (called 'venv' here)
+source venv/bin/activate # to enter the virtual environment
+pip install -r requirements.test.txt
+```
+
 ## Disclaimer
 
 This project has no relation with the Inim company.

@@ -1,5 +1,6 @@
 # artifacts
 __pycache__
+pyvenv.cfg
 .pytest*
 pytestdebug.log
 *.egg-info
@@ -9,6 +10,9 @@ site/*
 
 
 # misc
+bin
+lib
+lib64
 .cache
 .coverage
 .ruff_cache
@@ -19,9 +23,5 @@ site/*
 coverage.xml
 test_results/*
 
-
 # Home Assistant configuration
-config/*
-!config/configuration.yaml
-images/image.png
 venv/
