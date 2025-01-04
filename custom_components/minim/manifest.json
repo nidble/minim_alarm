@@ -8,5 +8,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/nidble/minim_alarm/issues",
   "requirements": ["pyinim==0.0.19"],
-  "version": "0.3.1"
+  "version": "0.3.2"
 }
