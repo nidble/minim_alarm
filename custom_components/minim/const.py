@@ -17,4 +17,4 @@ CONST_MANUFACTURER: Final = "Minim"
 
 # from homeassistant.components.binary_sensor import (SCAN_INTERVAL as DEFAULT_SCAN_INTERVAL)
 # DEFAULT_SCAN_INTERVAL = timedelta(seconds=15)
-DEFAULT_SCAN_INTERVAL = 30
+DEFAULT_SCAN_INTERVAL = 10

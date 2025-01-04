@@ -61,7 +61,7 @@ async def async_setup_entry(
     # await coordinator.async_config_entry_first_refresh()
     # devices: MinimResult = coordinator.data
     _LOGGER.warning(
-        "MMINIM alarm panel was created/updated for the following panels: %s", panels
+        "MINIM alarm panel was created/updated for the following panels: %s", panels
     )
     alarm_control_panels = [
         MinimAlarmControlPanelEntity(
