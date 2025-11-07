@@ -15,12 +15,10 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
     CONF_USERNAME,
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_ARMED_VACATION,
-    STATE_ALARM_DISARMED,
 )
+# 🆕 Home Assistant 2025.x usa l'enum AlarmControlPanelState invece delle vecchie costanti
+from homeassistant.components.alarm_control_panel import AlarmControlPanelState
+
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_registry import (
@@ -39,23 +37,23 @@ from .const import (
 
 UNIQUE_ID_PREFIX = "alarm_control_panel"
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class BadRequest(HTTPException):
-    "Enhance HttpExeception."
-
+    """Enhance HttpException."""
     pass
 
 
-_LOGGER = logging.getLogger(__name__)
-
+# 🆕 Conversione enum -> valori numerici per i vari scenari
 DEFAULT_SCENARIOS_SCHEMA = {
-    STATE_ALARM_ARMED_AWAY: 0,
-    STATE_ALARM_DISARMED: 1,
-    STATE_ALARM_ARMED_NIGHT: 2,
-    STATE_ALARM_ARMED_HOME: 3,
-    STATE_ALARM_ARMED_VACATION: 0,
-    # STATE_ALARM_ARMED_CUSTOM_BYPASS: 0,
+    AlarmControlPanelState.ARMED_AWAY.value: 0,
+    AlarmControlPanelState.DISARMED.value: 1,
+    AlarmControlPanelState.ARMED_NIGHT.value: 2,
+    AlarmControlPanelState.ARMED_HOME.value: 3,
+    AlarmControlPanelState.ARMED_VACATION.value: 0,
 }
+
 
 PANEL_SCHEMA = vol.Schema(
     {
@@ -63,23 +61,20 @@ PANEL_SCHEMA = vol.Schema(
             CONF_PANEL_NAME, description={"suggested_value": "Minim Alarm Panel"}
         ): cv.string,
         vol.Optional(
-            STATE_ALARM_ARMED_AWAY, description={"suggested_value": 0}
+            AlarmControlPanelState.ARMED_AWAY.value, description={"suggested_value": 0}
         ): cv.positive_int,
         vol.Optional(
-            STATE_ALARM_DISARMED, description={"suggested_value": 1}
+            AlarmControlPanelState.DISARMED.value, description={"suggested_value": 1}
         ): cv.positive_int,
         vol.Optional(
-            STATE_ALARM_ARMED_NIGHT, description={"suggested_value": 2}
+            AlarmControlPanelState.ARMED_NIGHT.value, description={"suggested_value": 2}
         ): cv.positive_int,
         vol.Optional(
-            STATE_ALARM_ARMED_HOME, description={"suggested_value": 3}
+            AlarmControlPanelState.ARMED_HOME.value, description={"suggested_value": 3}
         ): cv.positive_int,
         vol.Optional(
-            STATE_ALARM_ARMED_VACATION, description={"suggested_value": 0}
+            AlarmControlPanelState.ARMED_VACATION.value, description={"suggested_value": 0}
         ): cv.positive_int,
-        # vol.Optional(
-        #     STATE_ALARM_ARMED_CUSTOM_BYPASS, description={"suggested_value": 0}
-        # ): cv.positive_int,
         vol.Optional("add_another"): cv.boolean,
     }
 )
@@ -95,14 +90,12 @@ AUTH_SCHEMA = vol.Schema(
 
 
 def gen_unique_panel_id(s: str) -> str:
-    """Generate an unique_id suitable for this integration ."""
+    """Generate an unique_id suitable for this integration."""
     return UNIQUE_ID_PREFIX + "_" + cv.slugify(s)
 
 
-async def validate_panel(name: str) -> None:
+async def validate_panel(name: str) -> str:
     """Validate a Minim Panel."""
-
-    # TODO: add some validation stuff
     return gen_unique_panel_id(name)
 
 
@@ -110,12 +103,9 @@ async def validate_auth(
     username: str,
     password: str,
     client_id: str,
-    hass: core.HomeAssistant,  # or maybe hass: core.HassJob,
-) -> None:
-    """Validate a GitHub access token.
-
-    Raises a ValueError if the auth token is invalid.
-    """
+    hass: core.HomeAssistant,
+) -> dict[str, Any]:
+    """Validate credentials for Minim Cloud."""
     session = async_get_clientsession(hass)
     minim = MinimCloud(
         session,
@@ -128,8 +118,7 @@ async def validate_auth(
     try:
         await minim.token()
     except Exception as exc:
-        # except BadRequest as exc:
-        raise ValueError("Something bad happened while validating Auth form") from exc
+        raise ValueError("Authentication failed while validating Minim credentials") from exc
 
     return {"title": f"Minim Integration for - {username}"}
 
@@ -155,70 +144,56 @@ class MinimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
             except ValueError:
                 errors["base"] = "auth"
+
             if not errors:
-                # ----------------------------------------------------------------------------
-                # Setting our unique id here just because we have the info at this stage to do that
-                # and it will abort early on in the process if alreay setup.
-                # You can put this in any step however.
-                # ----------------------------------------------------------------------------
                 await self.async_set_unique_id(info.get("title"))
                 self._abort_if_unique_id_configured()
 
-                # Set our title variable here for use later
                 self._title = info["title"]
-
-                # Input is valid, set data.
                 self.data = user_input
                 self.data[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
                 self.data[CONF_PANELS] = []
-                # Return the form of the next step.
+
                 return await self.async_step_panel()
 
-        return self.async_show_form(
-            step_id="user", data_schema=AUTH_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=AUTH_SCHEMA, errors=errors)
 
     async def async_step_panel(self, user_input: Optional[dict[str, Any]] = None):
         """Second step in config flow to add a Panel."""
         errors: dict[str, str] = {}
         panel_unique_id = UNIQUE_ID_PREFIX
+
         if user_input is not None:
-            # Validate the panel.
             try:
                 panel_unique_id = await validate_panel(
-                    user_input[CONF_PANEL_NAME] or CONST_ALARM_CONTROL_PANEL_NAME,
+                    user_input.get(CONF_PANEL_NAME) or CONST_ALARM_CONTROL_PANEL_NAME,
                 )
                 scenarios = {
-                    STATE_ALARM_ARMED_AWAY: user_input.get(
-                        STATE_ALARM_ARMED_AWAY,
-                        DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_ARMED_AWAY],
+                    AlarmControlPanelState.ARMED_AWAY.value: user_input.get(
+                        AlarmControlPanelState.ARMED_AWAY.value,
+                        DEFAULT_SCENARIOS_SCHEMA[AlarmControlPanelState.ARMED_AWAY.value],
                     ),
-                    STATE_ALARM_DISARMED: user_input.get(
-                        STATE_ALARM_DISARMED,
-                        DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_DISARMED],
+                    AlarmControlPanelState.DISARMED.value: user_input.get(
+                        AlarmControlPanelState.DISARMED.value,
+                        DEFAULT_SCENARIOS_SCHEMA[AlarmControlPanelState.DISARMED.value],
                     ),
-                    STATE_ALARM_ARMED_NIGHT: user_input.get(
-                        STATE_ALARM_ARMED_NIGHT,
-                        DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_ARMED_NIGHT],
+                    AlarmControlPanelState.ARMED_NIGHT.value: user_input.get(
+                        AlarmControlPanelState.ARMED_NIGHT.value,
+                        DEFAULT_SCENARIOS_SCHEMA[AlarmControlPanelState.ARMED_NIGHT.value],
                     ),
-                    STATE_ALARM_ARMED_HOME: user_input.get(
-                        STATE_ALARM_ARMED_HOME,
-                        DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_ARMED_HOME],
+                    AlarmControlPanelState.ARMED_HOME.value: user_input.get(
+                        AlarmControlPanelState.ARMED_HOME.value,
+                        DEFAULT_SCENARIOS_SCHEMA[AlarmControlPanelState.ARMED_HOME.value],
                     ),
-                    STATE_ALARM_ARMED_VACATION: user_input.get(
-                        STATE_ALARM_ARMED_VACATION,
-                        DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_ARMED_VACATION],
+                    AlarmControlPanelState.ARMED_VACATION.value: user_input.get(
+                        AlarmControlPanelState.ARMED_VACATION.value,
+                        DEFAULT_SCENARIOS_SCHEMA[AlarmControlPanelState.ARMED_VACATION.value],
                     ),
-                    # STATE_ALARM_ARMED_CUSTOM_BYPASS: user_input.get(
-                    #     STATE_ALARM_ARMED_CUSTOM_BYPASS,
-                    #     DEFAULT_SCENARIOS_SCHEMA[STATE_ALARM_ARMED_CUSTOM_BYPASS],
-                    # ),
                 }
             except ValueError:
                 errors["base"] = "invalid_panel"
 
             if not errors:
-                # Input is valid, set data.
                 self.data[CONF_PANELS].append(
                     {
                         "panel_name": user_input[CONF_PANEL_NAME],
@@ -226,14 +201,11 @@ class MinimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "scenarios": scenarios,
                     }
                 )
-                # If user ticked the box show this form again so they can add an
-                # additional panel.
+
                 if user_input.get("add_another", False):
                     return await self.async_step_panel()
 
-                # User is done adding panels, create the config entry.
                 return self.async_create_entry(title="Minim Alarm", data=self.data)
 
-        return self.async_show_form(
-            step_id="panel", data_schema=PANEL_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="panel", data_schema=PANEL_SCHEMA, errors=errors)
+
