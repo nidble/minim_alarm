@@ -1,6 +1,5 @@
 """Support for MINIM Config Flow."""
 
-from copy import deepcopy
 from http.client import HTTPException
 import logging
 from typing import Any, Optional
@@ -15,18 +14,9 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
     CONF_USERNAME,
-    STATE_ALARM_ARMED_AWAY,
-    STATE_ALARM_ARMED_HOME,
-    STATE_ALARM_ARMED_NIGHT,
-    STATE_ALARM_ARMED_VACATION,
-    STATE_ALARM_DISARMED,
 )
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity_registry import (
-    async_entries_for_config_entry,
-    async_get,
-)
 
 from .const import (
     CONF_PANEL_NAME,
@@ -39,7 +29,6 @@ from .const import (
 
 UNIQUE_ID_PREFIX = "alarm_control_panel"
 
-
 class BadRequest(HTTPException):
     "Enhance HttpExeception."
 
@@ -47,6 +36,12 @@ class BadRequest(HTTPException):
 
 
 _LOGGER = logging.getLogger(__name__)
+
+STATE_ALARM_ARMED_AWAY = "armed_away"
+STATE_ALARM_ARMED_HOME = "armed_home"
+STATE_ALARM_ARMED_NIGHT = "armed_night"
+STATE_ALARM_ARMED_VACATION = "armed_vacation"
+STATE_ALARM_DISARMED = "disarmed"
 
 DEFAULT_SCENARIOS_SCHEMA = {
     STATE_ALARM_ARMED_AWAY: 0,
