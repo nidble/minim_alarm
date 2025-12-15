@@ -59,7 +59,7 @@ async def async_setup_entry(
         client_id=client_id,
     )
 
-    async def async_fetch_minim() -> MinimResult | None:
+    async def async_fetch_minim1() -> MinimResult | None:
         try:
             await inim_cloud_api.get_request_poll(device_id)
             _, _, res = await inim_cloud_api.get_devices_extended(device_id)
@@ -67,6 +67,49 @@ async def async_setup_entry(
         except Exception as ex:
             # raise ConfigEntryAuthFailed("Credentials expired for Minim Cloud") from ex
             config_entry.async_start_reauth(hass)
+
+    async def async_fetch_minim() -> MinimResult | None:
+            """Fetch data from the Minim API with robust session handling."""
+            
+            from pyinim.cloud.exceptions import MalformedResponseError
+            from homeassistant.exceptions import ConfigEntryNotReady
+            
+            MAX_RETRIES = 1 
+            
+            for attempt in range(MAX_RETRIES + 1):
+                try:
+                    # 1. Chiama token() per rinnovare la sessione se necessario.
+                    await inim_cloud_api.token() 
+                    
+                    # 2. Esegue le richieste reali
+                    await inim_cloud_api.get_request_poll(device_id)
+                    _, _, res = await inim_cloud_api.get_devices_extended(device_id)
+                    
+                    return res # Successo
+
+                except MalformedResponseError as ex:
+                    # Cattura l'errore "Invalid Token" mascherato da MalformedResponseError
+                    
+                    if attempt < MAX_RETRIES:
+                        _LOGGER.warning("Minim: Token invalido rilevato. Tentativo di ri-login forzato...")
+                        
+                        #RESET FORZATO DEL TOKEN E DEL TIMER
+                        inim_cloud_api.expires_at = 0 
+                        inim_cloud_api._token = None 
+                        
+                        continue # Torna all'inizio del loop e riprova il fetch
+
+                    # Se anche il secondo tentativo fallisce, l'integrazione è offline.
+                    _LOGGER.error("Minim: Fallimento definitivo del token dopo %s tentativi.", attempt)
+                    raise ConfigEntryNotReady("Minim API failed to fetch data") from ex
+                    
+                except Exception as ex:
+                    # Per tutti gli altri errori non MalformedResponseError (Timeout, Connessione, ecc.)
+                    _LOGGER.error("Minim: Errore sconosciuto durante il fetch: %s", ex)
+                    # Solleva un errore generico per HA, senza avviare il reauth
+                    raise ConfigEntryNotReady("Minim API failed due to unknown error") from ex
+            
+            return None
 
     coordinator = DataUpdateCoordinator(
         hass,
