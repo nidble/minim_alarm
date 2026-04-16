@@ -10,6 +10,7 @@ import voluptuous as vol
 from homeassistant import config_entries, core
 from homeassistant.const import (
     CONF_CLIENT_ID,
+    CONF_CODE,
     CONF_DEVICE_ID,
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
@@ -17,6 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
 
 from .const import (
     CONF_PANEL_NAME,
@@ -83,6 +85,7 @@ AUTH_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_USERNAME): cv.string,
         vol.Required(CONF_PASSWORD): cv.string,
+        vol.Required(CONF_CODE): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
         vol.Required(CONF_CLIENT_ID): cv.string,
         vol.Required(CONF_DEVICE_ID): cv.string,
     }
@@ -104,6 +107,7 @@ async def validate_panel(name: str) -> None:
 async def validate_auth(
     username: str,
     password: str,
+    code: str,
     client_id: str,
     hass: core.HomeAssistant,  # or maybe hass: core.HassJob,
 ) -> None:
@@ -117,6 +121,7 @@ async def validate_auth(
         name=CONST_MANUFACTURER,
         username=username,
         password=password,
+        code=code,
         client_id=client_id,
     )
 
@@ -145,6 +150,7 @@ class MinimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 info = await validate_auth(
                     user_input[CONF_USERNAME],
                     user_input[CONF_PASSWORD],
+                    user_input[CONF_CODE],
                     user_input[CONF_CLIENT_ID],
                     self.hass,
                 )
@@ -153,7 +159,7 @@ class MinimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 # ----------------------------------------------------------------------------
                 # Setting our unique id here just because we have the info at this stage to do that
-                # and it will abort early on in the process if alreay setup.
+                # and it will abort early on in the process if already setup.
                 # You can put this in any step however.
                 # ----------------------------------------------------------------------------
                 await self.async_set_unique_id(info.get("title"))

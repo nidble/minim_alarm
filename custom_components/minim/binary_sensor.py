@@ -33,6 +33,10 @@ async def async_setup_entry(
 
     binary_sensors = [
         MinimBinarySensorEntity(coordinator, zone, device_id) for zone in res.Zones
+    ] + [
+        MinimAlarmMemorySensorEntity(coordinator, zone, device_id) for zone in res.Zones
+    ] + [
+        MinimTamperMemorySensorEntity(coordinator, zone, device_id) for zone in res.Zones
     ]
 
     # Create the binary sensors.
@@ -109,3 +113,83 @@ class MinimBinarySensorEntity(CoordinatorEntity, BinarySensorEntity):
     #         )
 
     #     self.async_write_ha_state()
+
+
+class MinimAlarmMemorySensorEntity(CoordinatorEntity, BinarySensorEntity):
+    """Represents an Alarm Memory sensor for every Zone."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator[MinimResult],
+        zone: Zone,
+        device_id: str,
+    ):
+        super().__init__(coordinator, context=zone.ZoneId)
+
+        self._zone = zone
+        self._device_id = device_id
+        self._attr_extra_state_attributes = {}
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, zone.ZoneId)},
+            manufacturer=CONST_MANUFACTURER,
+            model=zone.Type,
+            name=zone.Name,
+        )
+        self._attr_unique_id = self.get_unique_id()
+
+    @property
+    def is_on(self):
+        """Return True if there is an alarm memory on this zone."""
+        zones: list[Zone] = self.coordinator.data.Data[self._device_id].Zones
+        for zone in zones:
+            if zone.ZoneId == self._zone.ZoneId:
+                return zone.AlarmMemory != 0
+        return False
+
+    def get_unique_id(self) -> str:
+        slug = slugify(self._zone.Name)
+        return f"binary_sensor.minim_alarm_memory_{slug}_{self._zone.ZoneId}"
+
+    @property
+    def name(self) -> str:
+        return f"{self._zone.Name} Alarm Memory"
+
+
+class MinimTamperMemorySensorEntity(CoordinatorEntity, BinarySensorEntity):
+    """Represents a Tamper Memory sensor for every Zone."""
+
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator[MinimResult],
+        zone: Zone,
+        device_id: str,
+    ):
+        super().__init__(coordinator, context=zone.ZoneId)
+
+        self._zone = zone
+        self._device_id = device_id
+        self._attr_extra_state_attributes = {}
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, zone.ZoneId)},
+            manufacturer=CONST_MANUFACTURER,
+            model=zone.Type,
+            name=zone.Name,
+        )
+        self._attr_unique_id = self.get_unique_id()
+
+    @property
+    def is_on(self):
+        """Return True if there is a tamper memory on this zone."""
+        zones: list[Zone] = self.coordinator.data.Data[self._device_id].Zones
+        for zone in zones:
+            if zone.ZoneId == self._zone.ZoneId:
+                return zone.TamperMemory != 0
+        return False
+
+    def get_unique_id(self) -> str:
+        slug = slugify(self._zone.Name)
+        return f"binary_sensor.minim_tamper_memory_{slug}_{self._zone.ZoneId}"
+
+    @property
+    def name(self) -> str:
+        return f"{self._zone.Name} Tamper Memory"

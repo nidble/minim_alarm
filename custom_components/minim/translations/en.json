@@ -9,6 +9,7 @@
         "data": {
           "username": "Minim Username",
           "password": "Minim Password",
+          "code": "Minim PIN Code",
           "device_id": "Minim DeviceId",
           "client_id": "Minim ClientId"
         },

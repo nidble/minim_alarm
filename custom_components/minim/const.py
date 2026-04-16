@@ -6,6 +6,7 @@ from typing import Final
 DOMAIN = "minim"
 
 CONF_CLIENT_ID: Final = "client_id"
+CONF_CODE: Final = "code"
 CONF_DEVICE_ID: Final = "device_id"
 CONF_SCENARIOS: Final = "scenarios"
 CONF_PANELS: Final = "panels"

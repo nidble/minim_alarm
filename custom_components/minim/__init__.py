@@ -9,6 +9,7 @@ from pyinim.inim_cloud import InimCloud as MinimCloud
 from homeassistant import core
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONF_CODE,
     CONF_PASSWORD,
     CONF_SCAN_INTERVAL,
     CONF_USERNAME,
@@ -26,6 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
     Platform.ALARM_CONTROL_PANEL,
+    Platform.SWITCH,
 ]
 
 
@@ -47,6 +49,7 @@ async def async_setup_entry(
 
     username = config_entry.data[CONF_USERNAME]
     password = config_entry.data[CONF_PASSWORD]
+    code = config_entry.data[CONF_CODE]
     client_id = config_entry.data[CONF_CLIENT_ID]
     device_id = config_entry.data[CONF_DEVICE_ID]
     scan_interval = timedelta(seconds=config_entry.data[CONF_SCAN_INTERVAL])
